@@ -177,6 +177,14 @@ This project demonstrates practical implementation of enterprise-level concepts 
 
 ---
 
+## System Architecture
+
+The DataForge architecture follows a scalable three-tier design consisting of a modern React frontend, FastAPI backend services, and a robust data processing and persistence layer.
+
+<img width="1024" height="1024" alt="exact_architecture" src="https://github.com/user-attachments/assets/5002e7bf-5ca9-4acf-b8eb-289e147ae3f7" />
+
+---
+
 ## Repository Structure
 
 ```

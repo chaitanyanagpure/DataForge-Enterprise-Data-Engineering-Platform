@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: dataforge-postgres
+    environment:
+      POSTGRES_USER: dataforge
+      POSTGRES_PASSWORD: dataforge_secure_password
+      POSTGRES_DB: dataforge
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dataforge"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: dataforge-redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dataforge-backend
+    ports:
+      - "8005:8000"
+    environment:
+      DATABASE_URL: "postgresql://dataforge:dataforge_secure_password@postgres:5432/dataforge"
+      REDIS_URL: "redis://redis:6379/0"
+      SECRET_KEY: "SUPER_SECRET_KEY_FOR_DATAFORGE_PLATFORM_1234567890"
+      BACKEND_CORS_ORIGINS: '["http://localhost:3010", "http://localhost:5173"]'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: dataforge-frontend
+    ports:
+      - "3010:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
